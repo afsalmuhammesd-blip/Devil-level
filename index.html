@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DEVIL DASH - FINAL PRO</title>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; touch-action: none; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { background: radial-gradient(circle, #200, #000); border-bottom: 5px solid #f00; display: none; width: 100vw; height: 400px; }
+        #menu, #gameOver { text-align: center; color: #f00; position: absolute; z-index: 10; }
+        #gameOver { display: none; }
+        .btn { background: #f00; color: #fff; border: none; padding: 15px 40px; font-size: 22px; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 0 15px #f00; margin-top: 20px; }
+        #jumpBtn { position: absolute; bottom: 20px; right: 20px; width: 85px; height: 85px; background: rgba(255,0,0,0.2); border: 3px solid #f00; border-radius: 50%; color: #fff; display: none; z-index: 100; font-weight: bold; font-size: 16px; outline: none; }
+        #ui { position: absolute; top: 20px; left: 20px; color: #f00; font-size: 18px; font-weight: bold; display: none; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <div id="menu">
+        <h1 style="font-size: 45px; letter-spacing: 8px; margin-bottom: 10px;">DEVIL DASH</h1>
+        <p style="color: #666; margin-bottom: 30px;">FAIR JUMPS | NO LAG</p>
+        <button class="btn" onclick="initGame()">START GAME</button>
+    </div>
+
+    <div id="gameOver">
+        <h1 style="font-size: 50px;">WASTED</h1>
+        <p style="font-size: 25px;">SCORE: <span id="finalScore">0</span></p>
+        <button class="btn" onclick="initGame()">RESTART</button>
+    </div>
+
+    <div id="ui">SCORE: <span id="s">0</span></div>
+    <canvas id="game"></canvas>
+    <button id="jumpBtn" onmousedown="jump()" ontouchstart="jump()">JUMP</button>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        const menu = document.getElementById('menu');
+        const gameOver = document.getElementById('gameOver');
+        const jumpBtn = document.getElementById('jumpBtn');
+        const ui = document.getElementById('ui');
+
+        canvas.width = window.innerWidth;
+        canvas.height = 400;
+
+        let p, obs, score, speed, active = false, lastSpawn = 0;
+
+        function initGame() {
+            active = true;
+            menu.style.display = 'none';
+            gameOver.style.display = 'none';
+            canvas.style.display = 'block';
+            jumpBtn.style.display = 'block';
+            ui.style.display = 'block';
+
+            p = { x: 80, y: 300, w: 40, h: 40, dy: 0, j: 14, g: 0.8, gr: false };
+            obs = [];
+            score = 0;
+            speed = 6.5; 
+            lastSpawn = Date.now();
+            
+            document.getElementById('s').innerText = 0;
+            update();
+        }
+
+        function jump() {
+            if (p.gr) { p.dy = -p.j; p.gr = false; }
+        }
+
+        function update() {
+            if (!active) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            p.dy += p.g; p.y += p.dy;
+            if (p.y + p.h >= 400) { p.y = 400 - p.h; p.dy = 0; p.gr = true; }
+
+            ctx.shadowBlur = 15; ctx.shadowColor = '#f00';
+            ctx.fillStyle = '#111'; ctx.fillRect(p.x, p.y, p.w, p.h);
+            ctx.fillStyle = '#f00'; ctx.beginPath();
+            ctx.arc(p.x + 10, p.y + 15, 3, 0, Math.PI * 2);
+            ctx.arc(p.x + 30, p.y + 15, 3, 0, Math.PI * 2); ctx.fill();
+
+            let now = Date.now();
+            if (now - lastSpawn > 1400 && Math.random() < 0.05) {
+                obs.push({ x: canvas.width, y: 365, w: 32, h: 35 });
+                lastSpawn = now;
+            }
+
+            for (let i = obs.length - 1; i >= 0; i--) {
+                obs[i].x -= speed;
+                ctx.shadowBlur = 0; ctx.fillStyle = '#fff'; ctx.beginPath();
+                ctx.moveTo(obs[i].x, 400);
+                ctx.lineTo(obs[i].x + obs[i].w / 2, 400 - obs[i].h);
+                ctx.lineTo(obs[i].x + obs[i].w, 400); ctx.fill();
+
+                if (p.x < obs[i].x + obs[i].w && p.x + p.w > obs[i].x && p.y + p.h > 400 - obs[i].h) {
+                    endGame();
+                }
+
+                if (obs[i].x + obs[i].w < 0) {
+                    obs.splice(i, 1);
+                    score++;
+                    document.getElementById('s').innerText = score;
+                    if(score % 5 === 0 && speed < 13) { speed += 0.8; }
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        function endGame() {
+            active = false; canvas.style.display = 'none';
+            jumpBtn.style.display = 'none'; ui.style.display = 'none';
+            gameOver.style.display = 'block';
+            document.getElementById('finalScore').innerText = score;
+        }
+    </script>
+</body>
+</html>
