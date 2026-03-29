@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DEVIL DASH - FINAL VERSION</title>
+    <title>DEVIL DASH - ROTATE VERSION</title>
     <style>
         :root { --p: #f00; }
         body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; touch-action: none; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
         
-        /* DEVIL FACE BACKGROUND - കണ്ണുകളും വായയും ഉള്ള ലുക്ക് */
+        /* DEVIL FACE BACKGROUND */
         canvas { 
             background: #000;
             background-image: 
@@ -24,7 +24,7 @@
         h1 { font-size: 45px; color: var(--p); text-shadow: 0 0 15px var(--p); margin: 0 0 20px 0; font-weight: 900; }
         .btn { background: var(--p); color: #fff; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 12px; margin-top: 15px; min-width: 200px; box-shadow: 0 0 15px var(--p); cursor: pointer; }
         
-        /* JUMP BUTTON - നിനക്ക് ഇഷ്ടപ്പെട്ട രീതിയിൽ ചെറുതാക്കിയത് */
+        /* SMALL JUMP BUTTON */
         #jumpBtn { 
             position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; 
             background: rgba(255,0,0,0.1); border: 2px solid var(--p); border-radius: 50%; 
@@ -34,7 +34,7 @@
         
         #ui { position: fixed; top: 25px; left: 20px; color: var(--p); font-size: 22px; font-weight: bold; display: none; z-index: 10; }
         
-        /* OLD MODS BUTTON STYLE - പഴയതുപോലെ */
+        /* OLD MODS BUTTON STYLE */
         .modBox { margin-top: 10px; border: 1px solid var(--p); padding: 10px; border-radius: 10px; display: none; width: 220px; background: #050505; }
         .modOpt { background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 12px; width: 100%; margin-bottom: 6px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
     </style>
@@ -44,7 +44,7 @@
     <div id="menu">
         <h1>DEVIL DASH</h1>
         <button class="btn" onclick="start()">START GAME</button>
-        <button class="btn" style="font-size:14px; min-width:140px; background:#222; box-shadow:none; border:1px solid var(--p);" onclick="tgl('mMod')">MODS</button>
+        <button class="btn" style="font-size:14px; min-width:140px; background:#222; border:1px solid var(--p);" onclick="tgl('mMod')">MODS</button>
         <div id="mMod" class="modBox">
             <button class="modOpt" style="color:#f00;" onclick="set('#f00','#400')">RED DEVIL</button>
             <button class="modOpt" style="color:#00f;" onclick="set('#00f','#004')">BLUE DEVIL</button>
@@ -75,7 +75,7 @@
 
         function start(){
             run=true; m.style.display='none'; g.style.display='none'; cvs.style.display='block'; jb.style.display='block'; u.style.display='block';
-            p={x:60, y:220, w:42, h:42, dy:0, g:0.8, jump:15, onG:false};
+            p={x:60, y:220, w:42, h:42, dy:0, g:0.8, jump:15, onG:false, angle:0};
             obs=[]; sc=0; spd=7; document.getElementById('s').innerText=0;
             loop();
         }
@@ -86,15 +86,28 @@
             if(!run) return;
             ctx.clearRect(0,0,cvs.width,cvs.height);
             p.dy+=p.g; p.y+=p.dy;
-            if(p.y+p.h>=320){ p.y=320-p.h; p.dy=0; p.onG=true; }
+            if(p.y+p.h>=320){ p.y=320-p.h; p.dy=0; p.onG=true; p.angle=0; }
             
-            // Player - ചുവന്ന കണ്ണുകളുള്ള Devil
-            ctx.fillStyle='#000'; ctx.shadowBlur=15; ctx.shadowColor=clr;
-            ctx.fillRect(p.x, p.y, p.w, p.h);
-            ctx.fillStyle=clr; ctx.beginPath(); 
-            ctx.arc(p.x+12, p.y+15, 5, 0, Math.PI*2); ctx.arc(p.x+30, p.y+15, 5, 0, Math.PI*2); ctx.fill();
+            // Rotation Animation Logic
+            if(!p.onG) { p.angle += 10; } // ചാടുമ്പോൾ പ്ലെയർ കറങ്ങും
 
-            // DOUBLE SPIKE LOGIC - ഇടയ്ക്ക് രണ്ട് സ്പൈക്കുകൾ വരും
+            // Player Drawing with Rotation
+            ctx.save();
+            ctx.translate(p.x + p.w/2, p.y + p.h/2);
+            ctx.rotate(p.angle * Math.PI / 180);
+            
+            ctx.fillStyle='#000'; ctx.shadowBlur=15; ctx.shadowColor=clr;
+            ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+            
+            // Eyes
+            ctx.fillStyle=clr; ctx.shadowBlur=0;
+            ctx.beginPath(); 
+            ctx.arc(-p.w/2 + 12, -p.h/2 + 15, 5, 0, Math.PI*2); 
+            ctx.arc(-p.w/2 + 30, -p.h/2 + 15, 5, 0, Math.PI*2); 
+            ctx.fill();
+            ctx.restore();
+
+            // Double Spike Logic
             if(Math.random()<0.02 && (obs.length==0 || obs[obs.length-1].x < cvs.width-300)){
                 let double = Math.random() > 0.75;
                 obs.push({x:cvs.width, y:320, w:35, h:45, dbl: double});
@@ -102,18 +115,14 @@
 
             for(let i=obs.length-1; i>=0; i--){
                 obs[i].x-=spd;
-                ctx.fillStyle='#fff'; ctx.shadowBlur=0;
-                
-                // First Spike
+                ctx.fillStyle='#fff';
                 drawSpike(obs[i].x, 320, obs[i].h);
                 if(p.x < obs[i].x+30 && p.x+p.w > obs[i].x+5 && p.y+p.h > 320-obs[i].h) over();
                 
-                // Second Spike (Double)
                 if(obs[i].dbl){
                     drawSpike(obs[i].x+40, 320, obs[i].h);
                     if(p.x < obs[i].x+70 && p.x+p.w > obs[i].x+45 && p.y+p.h > 320-obs[i].h) over();
                 }
-
                 if(obs[i].x < -100){ obs.splice(i,1); sc++; document.getElementById('s').innerText=sc; spd+=0.1; }
             }
             requestAnimationFrame(loop);
