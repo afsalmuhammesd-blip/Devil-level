@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DEVIL DASH - CLASSIC MODS</title>
+    <title>DEVIL DASH - FINAL FIX</title>
     <style>
         :root { --p: #f00; }
         body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; touch-action: none; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
@@ -15,11 +15,29 @@
         h1 { font-size: 40px; color: var(--p); text-shadow: 0 0 10px var(--p); margin: 0 0 20px 0; }
         .btn { background: var(--p); color: #fff; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 10px; margin-top: 15px; min-width: 200px; box-shadow: 0 0 10px var(--p); cursor: pointer; }
         
-        #jumpBtn { position: fixed; bottom: 30px; right: 30px; width: 80px; height: 80px; background: rgba(255,0,0,0.2); border: 3px solid var(--p); border-radius: 50%; color: var(--p); display: none; z-index: 1000; font-weight: bold; }
-        #ui { position: fixed; top: 20px; left: 20px; color: var(--p); font-size: 20px; font-weight: bold; display: none; }
+        /* JUMP BUTTON ചെറുതാക്കി സൈഡിലേക്ക് മാറ്റി */
+        #jumpBtn { 
+            position: fixed; 
+            bottom: 30px; 
+            right: 20px; 
+            width: 70px; 
+            height: 70px; 
+            background: rgba(255,0,0,0.15); 
+            border: 2px solid var(--p); 
+            border-radius: 50%; 
+            color: var(--p); 
+            display: none; 
+            z-index: 1000; 
+            font-weight: bold; 
+            font-size: 14px;
+            outline: none;
+            box-shadow: 0 0 10px var(--p);
+            -webkit-tap-highlight-color: transparent;
+        }
         
+        #ui { position: fixed; top: 25px; left: 20px; color: var(--p); font-size: 22px; font-weight: bold; display: none; z-index: 10; text-shadow: 0 0 5px #000; }
         .modBox { margin-top: 10px; border: 1px solid var(--p); padding: 10px; border-radius: 10px; display: none; width: 200px; }
-        .modOpt { background: #222; color: #fff; border: 1px solid #444; padding: 8px; width: 100%; margin-bottom: 5px; border-radius: 5px; cursor: pointer; }
+        .modOpt { background: #222; color: #fff; border: 1px solid #444; padding: 10px; width: 100%; margin-bottom: 5px; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -29,27 +47,27 @@
         <button class="btn" onclick="start()">START GAME</button>
         <button class="btn" style="font-size:14px; min-width:120px;" onclick="tgl('mMod')">MODS</button>
         <div id="mMod" class="modBox">
-            <button class="modOpt" onclick="set('#f00','#300')">RED</button>
-            <button class="modOpt" onclick="set('#00f','#003')">BLUE</button>
-            <button class="modOpt" onclick="set('#0f0','#030')">GREEN</button>
+            <button class="modOpt" style="color:#f00;" onclick="set('#f00','#300')">RED MODE</button>
+            <button class="modOpt" style="color:#00f;" onclick="set('#00f','#003')">BLUE MODE</button>
+            <button class="modOpt" style="color:#0f0;" onclick="set('#0f0','#030')">GREEN MODE</button>
         </div>
     </div>
 
     <div id="gameOver">
-        <h1>WASTED</h1>
-        <p id="fS" style="color:#fff; font-size:20px;">SCORE: 0</p>
+        <h1 style="text-shadow: 0 0 15px #f00;">WASTED</h1>
+        <p id="fS" style="color:#fff; font-size:24px; margin: 10px 0;">SCORE: 0</p>
         <button class="btn" onclick="start()">RESTART</button>
         <button class="btn" style="font-size:14px; min-width:120px;" onclick="tgl('gMod')">MODS</button>
         <div id="gMod" class="modBox">
-            <button class="modOpt" onclick="set('#f00','#300')">RED</button>
-            <button class="modOpt" onclick="set('#00f','#003')">BLUE</button>
-            <button class="modOpt" onclick="set('#0f0','#030')">GREEN</button>
+            <button class="modOpt" style="color:#f00;" onclick="set('#f00','#300')">RED MODE</button>
+            <button class="modOpt" style="color:#00f;" onclick="set('#00f','#003')">BLUE MODE</button>
+            <button class="modOpt" style="color:#0f0;" onclick="set('#0f0','#030')">GREEN MODE</button>
         </div>
     </div>
 
     <div id="ui">SCORE: <span id="s">0</span></div>
     <canvas id="game"></canvas>
-    <button id="jumpBtn" ontouchstart="jmp()" onmousedown="jmp()">JUMP</button>
+    <button id="jumpBtn" ontouchstart="jmp(event)" onmousedown="jmp(event)">JUMP</button>
 
     <script>
         const cvs=document.getElementById('game'), ctx=cvs.getContext('2d'), m=document.getElementById('menu'), g=document.getElementById('gameOver'), jb=document.getElementById('jumpBtn'), u=document.getElementById('ui');
@@ -58,13 +76,12 @@
 
         function start(){
             run=true; m.style.display='none'; g.style.display='none'; cvs.style.display='block'; jb.style.display='block'; u.style.display='block';
-            // പ്ലെയർ പൊസിഷൻ സ്ക്രീനിൽ കാണാൻ പാകത്തിന് അഡ്ജസ്റ്റ് ചെയ്തു
-            p={x:50, y:200, w:35, h:35, dy:0, g:0.7, jump:12, onG:false};
-            obs=[]; sc=0; spd=6; document.getElementById('s').innerText=0;
+            p={x:60, y:200, w:45, h:45, dy:0, g:0.8, jump:15, onG:false};
+            obs=[]; sc=0; spd=7; document.getElementById('s').innerText=0;
             loop();
         }
 
-        function jmp(){ if(p.onG){ p.dy=-p.jump; p.onG=false; } }
+        function jmp(e){ if(e) e.preventDefault(); if(p.onG){ p.dy=-p.jump; p.onG=false; } }
 
         function loop(){
             if(!run) return;
@@ -72,20 +89,28 @@
             p.dy+=p.g; p.y+=p.dy;
             if(p.y+p.h>=300){ p.y=300-p.h; p.dy=0; p.onG=true; }
             
-            // Player - Classic Style
-            ctx.fillStyle=clr; ctx.shadowBlur=15; ctx.shadowColor=clr;
+            // THE DEVIL PLAYER
+            ctx.fillStyle='#000'; ctx.shadowBlur=15; ctx.shadowColor=clr;
             ctx.fillRect(p.x, p.y, p.w, p.h);
+            ctx.fillStyle=clr; ctx.shadowBlur=0;
+            ctx.beginPath(); ctx.arc(p.x+12, p.y+15, 5, 0, Math.PI*2); ctx.arc(p.x+33, p.y+15, 5, 0, Math.PI*2); ctx.fill();
 
-            // Obstacles
-            if(Math.random()<0.02 && (obs.length==0 || obs[obs.length-1].x < cvs.width-250)){
-                obs.push({x:cvs.width, y:265, w:30, h:35});
+            // OBSTACLES (Spikes)
+            if(Math.random()<0.02 && (obs.length==0 || obs[obs.length-1].x < cvs.width-280)){
+                obs.push({x:cvs.width, y:300, w:35, h:45});
             }
 
             for(let i=obs.length-1; i>=0; i--){
                 obs[i].x-=spd;
-                ctx.shadowBlur=0; ctx.fillStyle='#fff'; ctx.fillRect(obs[i].x, obs[i].y, obs[i].w, obs[i].h);
-                if(p.x < obs[i].x+obs[i].w && p.x+p.w > obs[i].x && p.y+p.h > obs[i].y) over();
-                if(obs[i].x < -50){ obs.splice(i,1); sc++; document.getElementById('s').innerText=sc; spd+=0.1; }
+                ctx.fillStyle='#fff'; ctx.shadowBlur=0;
+                ctx.beginPath();
+                ctx.moveTo(obs[i].x, 300);
+                ctx.lineTo(obs[i].x+17, 300-obs[i].h);
+                ctx.lineTo(obs[i].x+35, 300);
+                ctx.fill();
+                
+                if(p.x < obs[i].x+28 && p.x+p.w > obs[i].x+7 && p.y+p.h > 300-obs[i].h) over();
+                if(obs[i].x < -60){ obs.splice(i,1); sc++; document.getElementById('s').innerText=sc; spd+=0.12; }
             }
             requestAnimationFrame(loop);
         }
