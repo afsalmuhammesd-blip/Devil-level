@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DEVIL DASH - ROTATE VERSION</title>
+    <title>DEVIL DASH - FIXED ROTATION</title>
     <style>
         :root { --p: #f00; }
         body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; touch-action: none; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
         
-        /* DEVIL FACE BACKGROUND */
         canvas { 
             background: #000;
             background-image: 
@@ -24,17 +23,14 @@
         h1 { font-size: 45px; color: var(--p); text-shadow: 0 0 15px var(--p); margin: 0 0 20px 0; font-weight: 900; }
         .btn { background: var(--p); color: #fff; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 12px; margin-top: 15px; min-width: 200px; box-shadow: 0 0 15px var(--p); cursor: pointer; }
         
-        /* SMALL JUMP BUTTON */
         #jumpBtn { 
-            position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; 
+            position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; 
             background: rgba(255,0,0,0.1); border: 2px solid var(--p); border-radius: 50%; 
-            color: var(--p); display: none; z-index: 1000; font-weight: bold; font-size: 10px;
+            color: var(--p); display: none; z-index: 1000; font-weight: bold; font-size: 12px;
             box-shadow: 0 0 10px var(--p); outline: none; -webkit-tap-highlight-color: transparent;
         }
         
         #ui { position: fixed; top: 25px; left: 20px; color: var(--p); font-size: 22px; font-weight: bold; display: none; z-index: 10; }
-        
-        /* OLD MODS BUTTON STYLE */
         .modBox { margin-top: 10px; border: 1px solid var(--p); padding: 10px; border-radius: 10px; display: none; width: 220px; background: #050505; }
         .modOpt { background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 12px; width: 100%; margin-bottom: 6px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
     </style>
@@ -53,7 +49,7 @@
     </div>
 
     <div id="gameOver">
-        <h1 style="color:#fff; text-shadow:0 0 20px #f00;">WASTED</h1>
+        <h1>WASTED</h1>
         <p id="fS" style="color:#fff; font-size:24px;">SCORE: 0</p>
         <button class="btn" onclick="start()">RESTART</button>
         <button class="btn" style="font-size:14px; min-width:140px; background:#222; border:1px solid var(--p);" onclick="tgl('gMod')">MODS</button>
@@ -75,7 +71,7 @@
 
         function start(){
             run=true; m.style.display='none'; g.style.display='none'; cvs.style.display='block'; jb.style.display='block'; u.style.display='block';
-            p={x:60, y:220, w:42, h:42, dy:0, g:0.8, jump:15, onG:false, angle:0};
+            p={x:60, y:220, w:45, h:45, dy:0, g:0.8, jump:15, onG:false, angle:0};
             obs=[]; sc=0; spd=7; document.getElementById('s').innerText=0;
             loop();
         }
@@ -88,48 +84,48 @@
             p.dy+=p.g; p.y+=p.dy;
             if(p.y+p.h>=320){ p.y=320-p.h; p.dy=0; p.onG=true; p.angle=0; }
             
-            // Rotation Animation Logic
-            if(!p.onG) { p.angle += 10; } // ചാടുമ്പോൾ പ്ലെയർ കറങ്ങും
+            if(!p.onG) { p.angle += 10; } 
 
-            // Player Drawing with Rotation
+            // PLAYER DRAWING
             ctx.save();
             ctx.translate(p.x + p.w/2, p.y + p.h/2);
             ctx.rotate(p.angle * Math.PI / 180);
             
-            ctx.fillStyle='#000'; ctx.shadowBlur=15; ctx.shadowColor=clr;
+            // Body
+            ctx.fillStyle='#000'; ctx.shadowBlur=20; ctx.shadowColor=clr;
             ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
             
-            // Eyes
+            // Eyes - Always visible
             ctx.fillStyle=clr; ctx.shadowBlur=0;
             ctx.beginPath(); 
-            ctx.arc(-p.w/2 + 12, -p.h/2 + 15, 5, 0, Math.PI*2); 
-            ctx.arc(-p.w/2 + 30, -p.h/2 + 15, 5, 0, Math.PI*2); 
+            ctx.arc(-p.w/2 + 14, -p.h/2 + 16, 6, 0, Math.PI*2); 
+            ctx.arc(-p.w/2 + 32, -p.h/2 + 16, 6, 0, Math.PI*2); 
             ctx.fill();
             ctx.restore();
 
-            // Double Spike Logic
-            if(Math.random()<0.02 && (obs.length==0 || obs[obs.length-1].x < cvs.width-300)){
-                let double = Math.random() > 0.75;
-                obs.push({x:cvs.width, y:320, w:35, h:45, dbl: double});
+            // Double Spikes
+            if(Math.random()<0.02 && (obs.length==0 || obs[obs.length-1].x < cvs.width-320)){
+                let dbl = Math.random() > 0.75;
+                obs.push({x:cvs.width, y:320, w:35, h:50, dbl: dbl});
             }
 
             for(let i=obs.length-1; i>=0; i--){
                 obs[i].x-=spd;
-                ctx.fillStyle='#fff';
-                drawSpike(obs[i].x, 320, obs[i].h);
-                if(p.x < obs[i].x+30 && p.x+p.w > obs[i].x+5 && p.y+p.h > 320-obs[i].h) over();
+                ctx.fillStyle='#fff'; ctx.shadowBlur=0;
                 
+                // Spike 1
+                ctx.beginPath(); ctx.moveTo(obs[i].x, 320); ctx.lineTo(obs[i].x+17, 320-obs[i].h); ctx.lineTo(obs[i].x+35, 320); ctx.fill();
+                if(p.x < obs[i].x+28 && p.x+p.w > obs[i].x+7 && p.y+p.h > 320-obs[i].h) over();
+                
+                // Spike 2
                 if(obs[i].dbl){
-                    drawSpike(obs[i].x+40, 320, obs[i].h);
-                    if(p.x < obs[i].x+70 && p.x+p.w > obs[i].x+45 && p.y+p.h > 320-obs[i].h) over();
+                    ctx.beginPath(); ctx.moveTo(obs[i].x+40, 320); ctx.lineTo(obs[i].x+57, 320-obs[i].h); ctx.lineTo(obs[i].x+75, 320); ctx.fill();
+                    if(p.x < obs[i].x+68 && p.x+p.w > obs[i].x+47 && p.y+p.h > 320-obs[i].h) over();
                 }
+
                 if(obs[i].x < -100){ obs.splice(i,1); sc++; document.getElementById('s').innerText=sc; spd+=0.1; }
             }
             requestAnimationFrame(loop);
-        }
-
-        function drawSpike(x, y, h){
-            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x+17, y-h); ctx.lineTo(x+35, y); ctx.fill();
         }
 
         function over(){ run=false; cvs.style.display='none'; jb.style.display='none'; u.style.display='none'; g.style.display='flex'; document.getElementById('fS').innerText='SCORE: '+sc; }
