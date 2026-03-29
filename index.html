@@ -10,45 +10,51 @@
         canvas { background: var(--bg); border-bottom: 5px solid var(--p); display: none; width: 100vw; height: 400px; }
         #menu, #gameOver { text-align: center; position: absolute; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; }
         #gameOver { display: none; }
-        h1 { font-size: 40px; color: var(--p); text-shadow: 0 0 10px var(--p); margin: 0; }
-        .btn { background: var(--p); color: #fff; border: none; padding: 15px 30px; font-size: 20px; font-weight: bold; border-radius: 10px; margin-top: 15px; min-width: 180px; }
-        #jumpBtn { position: absolute; bottom: 20px; right: 20px; width: 80px; height: 80px; background: rgba(0,0,0,0.4); border: 3px solid var(--p); border-radius: 50%; color: var(--p); display: none; z-index: 100; font-weight: bold; }
+        h1 { font-size: 45px; color: var(--p); text-shadow: 0 0 10px var(--p); margin: 0; }
+        .btn { background: var(--p); color: #fff; border: none; padding: 15px 35px; font-size: 20px; font-weight: bold; border-radius: 10px; margin-top: 15px; min-width: 200px; box-shadow: 0 0 10px var(--p); }
+        #jumpBtn { position: absolute; bottom: 20px; right: 20px; width: 80px; height: 80px; background: rgba(0,0,0,0.5); border: 3px solid var(--p); border-radius: 50%; color: var(--p); display: none; z-index: 100; font-weight: bold; }
         #ui { position: absolute; top: 20px; left: 20px; color: var(--p); font-size: 18px; font-weight: bold; display: none; }
-        .modBox { margin-top: 15px; border: 1px solid var(--p); padding: 10px; border-radius: 10px; background: rgba(0,0,0,0.8); width: 200px; display: none; }
-        .modOpt { background: transparent; color: #fff; border: 1px solid #fff; padding: 5px; width: 100%; margin-bottom: 5px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+        .modBox { margin-top: 15px; border: 2px solid var(--p); padding: 15px; border-radius: 12px; background: rgba(0,0,0,0.9); width: 220px; display: none; }
+        .modOpt { background: transparent; color: #fff; border: 1px solid #fff; padding: 8px; width: 100%; margin-bottom: 5px; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
 <body>
     <div id="menu">
         <h1>DEVIL DASH</h1>
         <button class="btn" onclick="startGame()">START GAME</button>
-        <button class="btn" style="font-size:14px; padding:8px;" onclick="toggleM('sMod')">MODS</button>
+        <button class="btn" style="font-size:16px; padding:10px;" onclick="toggleM('sMod')">MODS</button>
         <div id="sMod" class="modBox">
+            <h3 style="color:#fff; margin-top:0;">SELECT COLOR</h3>
             <button class="modOpt" style="color:#f00; border-color:#f00;" onclick="upMod('#f00','#300')">RED</button>
             <button class="modOpt" style="color:#00f; border-color:#00f;" onclick="upMod('#00f','#003')">BLUE</button>
             <button class="modOpt" style="color:#0f0; border-color:#0f0;" onclick="upMod('#0f0','#030')">GREEN</button>
             <button class="modOpt" style="color:#f0f; border-color:#f0f;" onclick="upMod('#f0f','#303')">VIOLET</button>
         </div>
     </div>
+
     <div id="gameOver">
         <h1>WASTED</h1>
-        <p id="fS" style="font-size:20px; color:white;">SCORE: 0</p>
+        <p id="fS" style="font-size:24px; color:white; margin:10px 0;">SCORE: 0</p>
         <button class="btn" onclick="startGame()">RESTART</button>
-        <button class="btn" style="font-size:14px; padding:8px;" onclick="toggleM('eMod')">MODS</button>
+        <button class="btn" style="font-size:16px; padding:10px;" onclick="toggleM('eMod')">MODS</button>
         <div id="eMod" class="modBox">
+            <h3 style="color:#fff; margin-top:0;">SELECT COLOR</h3>
             <button class="modOpt" style="color:#f00; border-color:#f00;" onclick="upMod('#f00','#300')">RED</button>
             <button class="modOpt" style="color:#00f; border-color:#00f;" onclick="upMod('#00f','#003')">BLUE</button>
             <button class="modOpt" style="color:#0f0; border-color:#0f0;" onclick="upMod('#0f0','#030')">GREEN</button>
             <button class="modOpt" style="color:#f0f; border-color:#f0f;" onclick="upMod('#f0f','#303')">VIOLET</button>
         </div>
     </div>
+
     <div id="ui">SCORE: <span id="s">0</span></div>
     <canvas id="game"></canvas>
     <button id="jumpBtn" onmousedown="jump()" ontouchstart="jump()">JUMP</button>
+
     <script>
         const cvs=document.getElementById('game'), ctx=cvs.getContext('2d'), mnu=document.getElementById('menu'), gov=document.getElementById('gameOver'), jmp=document.getElementById('jumpBtn'), scr=document.getElementById('ui'), root=document.documentElement;
         cvs.width=window.innerWidth; cvs.height=400;
         let p, obs, sc, spd, act=false, lS=0, clr='#f00';
+
         function startGame(){
             act=true; mnu.style.display='none'; gov.style.display='none'; cvs.style.display='block'; jmp.style.display='block'; scr.style.display='block';
             p={x:80, y:300, w:40, h:40, dy:0, j:14, g:0.8, gr:false}; obs=[]; sc=0; spd=6.5; lS=Date.now();
