@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DEVIL DASH - HARD TASK</title>
+    <title>DEVIL DASH - PRO TASK</title>
     <style>
         :root { --p: #f00; --bg: radial-gradient(circle, #300, #000); }
         body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; touch-action: none; display: flex; justify-content: center; align-items: center; height: 100vh; color: var(--p); }
@@ -68,51 +68,43 @@
             if(!act) return; 
             ctx.clearRect(0,0,cvs.width,cvs.height);
 
-            // സ്കോർ 20 കഴിഞ്ഞാൽ സ്പീഡ് കൂടും
             if(sc >= 20 && spd < 14) spd += 0.005;
 
             p.dy+=p.g; p.y+=p.dy; 
             if(p.y+p.h>=400){ p.y=400-p.h; p.dy=0; p.gr=true; }
 
-            // PLAYER DRAWING
             ctx.shadowBlur=15; ctx.shadowColor=clr; ctx.fillStyle='#111'; 
             ctx.fillRect(p.x, p.y, p.w, p.h);
             ctx.fillStyle=clr; ctx.beginPath(); ctx.arc(p.x+10,p.y+15,3,0,Math.PI*2); ctx.arc(p.x+30,p.y+15,3,0,Math.PI*2); ctx.fill();
 
-            // SPAWN OBSTACLES (TRIANGLES)
             let n=Date.now();
             if(n-lS > (1600 - (spd*20)) && Math.random()<0.06){
-                let isDouble = Math.random() > 0.7; // 30% chance
+                let isDouble = Math.random() > 0.7; 
                 obs.push({x:cvs.width, y:365, w:30, h:35, dbl: isDouble});
                 lS=n;
             }
 
-            // SPAWN BATS (VAVVAL) - Score 20 കഴിഞ്ഞാൽ മാത്രം
             if(sc >= 20 && Math.random() < 0.015 && bats.length < 2){
                 bats.push({x:cvs.width, y: 160 + Math.random()*80, w:30, h:20});
             }
 
-            // DRAW TRIANGLES (അടുത്തടുത്ത് നിൽക്കുന്ന രീതിയിൽ)
             for(let i=obs.length-1; i>=0; i--){
                 obs[i].x-=spd; 
                 ctx.shadowBlur=0; ctx.fillStyle='#fff';
                 
-                // First Spike
                 ctx.beginPath(); ctx.moveTo(obs[i].x, 400); ctx.lineTo(obs[i].x+15, 400-obs[i].h); ctx.lineTo(obs[i].x+30, 400); ctx.fill();
                 
-                // Second Spike (Gap വളരെ കുറച്ചു - ചേർന്ന് നിൽക്കും)
+                // രണ്ട് ത്രികോണങ്ങൾക്കിടയിലെ അകലം പൂജ്യം (0) ആക്കി. ഇപ്പോൾ അവ ഒട്ടിനിൽക്കും.
                 if(obs[i].dbl){
-                    ctx.beginPath(); ctx.moveTo(obs[i].x+28, 400); ctx.lineTo(obs[i].x+43, 400-obs[i].h); ctx.lineTo(obs[i].x+58, 400); ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(obs[i].x+30, 400); ctx.lineTo(obs[i].x+45, 400-obs[i].h); ctx.lineTo(obs[i].x+60, 400); ctx.fill();
                 }
 
-                // Collision Check
-                let hitWidth = obs[i].dbl ? 58 : 30;
+                let hitWidth = obs[i].dbl ? 60 : 30;
                 if(p.x < obs[i].x+hitWidth && p.x+p.w > obs[i].x && p.y+p.h > 400-obs[i].h) end();
                 
                 if(obs[i].x < -100){ obs.splice(i,1); sc++; document.getElementById('s').innerText=sc; }
             }
 
-            // DRAW BATS
             for(let i=bats.length-1; i>=0; i--){
                 bats[i].x -= (spd + 2);
                 ctx.fillStyle = clr;
