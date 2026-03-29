@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DEVIL DASH - STEP SPEED</title>
+    <title>DEVIL DASH - STEP SPEED FIXED</title>
     <style>
         :root { --p: #f00; --bg: radial-gradient(circle, #300, #000); }
         body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; touch-action: none; display: flex; justify-content: center; align-items: center; height: 100vh; color: var(--p); }
@@ -68,19 +68,19 @@
             if(!act) return; 
             ctx.clearRect(0,0,cvs.width,cvs.height);
 
-            // ഓരോ 20 സ്കോർ കൂടുമ്പോഴും സ്പീഡ് 1 വീതം കൂടും
+            // സ്പീഡ് സിസ്റ്റം: ഓരോ 20 സ്കോറിനും സ്പീഡ് 1 വീതം കൂടും
             spd = 7 + Math.floor(sc / 20);
-            if(spd > 15) spd = 15; // മാക്സിമം സ്പീഡ് ലിമിറ്റ്
+            if(spd > 15) spd = 15; 
 
             p.dy+=p.g; p.y+=p.dy; 
             if(p.y+p.h>=400){ p.y=400-p.h; p.dy=0; p.gr=true; }
 
-            // PLAYER
+            // പ്ലെയറെ വരയ്ക്കുന്ന ഭാഗം (ഇപ്പോൾ കാണാൻ സാധിക്കും)
             ctx.shadowBlur=15; ctx.shadowColor=clr; ctx.fillStyle='#111'; 
             ctx.fillRect(p.x, p.y, p.w, p.h);
             ctx.fillStyle=clr; ctx.beginPath(); ctx.arc(p.x+10,p.y+15,3,0,Math.PI*2); ctx.arc(p.x+30,p.y+15,3,0,Math.PI*2); ctx.fill();
 
-            // SPAWN TRIANGLES
+            // തടസ്സങ്ങൾ (Obstacles) ഉണ്ടാക്കുന്നു
             let n=Date.now();
             let spawnRate = 1600 - (spd * 30);
             if(n-lS > Math.max(spawnRate, 600) && Math.random()<0.06){
@@ -89,13 +89,12 @@
                 lS=n;
             }
 
-            // SPAWN LARGE BATS (Score 20+)
+            // പക്ഷികൾ (Score 20 കഴിഞ്ഞാൽ മാത്രം)
             if(sc >= 20 && Math.random() < 0.02 && bats.length < 2){
-                // ചാടുമ്പോൾ തട്ടുന്ന കറക്ട് ഹൈറ്റ് (220-260)
                 bats.push({x:cvs.width, y: 220 + Math.random()*30, w:55, h:35});
             }
 
-            // DRAW TRIANGLES
+            // തടസ്സങ്ങൾ വരയ്ക്കുന്നു
             for(let i=obs.length-1; i>=0; i--){
                 obs[i].x-=spd; 
                 ctx.shadowBlur=0; ctx.fillStyle='#fff';
@@ -108,13 +107,12 @@
                 if(obs[i].x < -100){ obs.splice(i,1); sc++; document.getElementById('s').innerText=sc; }
             }
 
-            // DRAW LARGE BATS
+            // പക്ഷികളെ വരയ്ക്കുന്നു
             for(let i=bats.length-1; i>=0; i--){
                 bats[i].x -= (spd + 2);
                 ctx.fillStyle = clr;
                 ctx.shadowBlur=10; ctx.shadowColor=clr;
                 
-                // ചിറകുകൾ വിടർത്തിയ വലിയ പക്ഷി
                 ctx.beginPath();
                 ctx.moveTo(bats[i].x, bats[i].y + 15);
                 ctx.lineTo(bats[i].x + 25, bats[i].y);
