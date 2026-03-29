@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DEVIL DASH - FINAL REPAIR</title>
+    <title>DEVIL DASH - ROTATE & SMOKE</title>
     <style>
         :root { --p: #f00; }
         body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; touch-action: none; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
         
+        /* DEVIL FACE BACKGROUND */
         canvas { 
             background: #000;
+            background-image: 
+                radial-gradient(circle at 30% 35%, #400 2%, transparent 15%), 
+                radial-gradient(circle at 70% 35%, #400 2%, transparent 15%),
+                radial-gradient(ellipse at 50% 85%, #200 15%, transparent 35%);
             border-bottom: 5px solid var(--p); display: none; width: 100vw; height: 320px; 
         }
         
@@ -19,15 +24,17 @@
         h1 { font-size: 45px; color: var(--p); text-shadow: 0 0 15px var(--p); margin: 0 0 20px 0; font-weight: 900; }
         .btn { background: var(--p); color: #fff; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 12px; margin-top: 15px; min-width: 200px; box-shadow: 0 0 15px var(--p); cursor: pointer; }
         
-        /* JUMP BUTTON - SMALL & BOTTOM RIGHT */
+        /* JUMP BUTTON - SMALL & SIDE */
         #jumpBtn { 
             position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; 
-            background: rgba(255,0,0,0.2); border: 2px solid var(--p); border-radius: 50%; 
+            background: rgba(255,0,0,0.1); border: 2px solid var(--p); border-radius: 50%; 
             color: var(--p); display: none; z-index: 1000; font-weight: bold; font-size: 12px;
             box-shadow: 0 0 10px var(--p); outline: none; -webkit-tap-highlight-color: transparent;
         }
         
         #ui { position: fixed; top: 25px; left: 20px; color: var(--p); font-size: 22px; font-weight: bold; display: none; z-index: 10; }
+        
+        /* OLD MODS BUTTON STYLE */
         .modBox { margin-top: 10px; border: 1px solid var(--p); padding: 10px; border-radius: 10px; display: none; width: 220px; background: #050505; }
         .modOpt { background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 12px; width: 100%; margin-bottom: 6px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
     </style>
@@ -46,7 +53,7 @@
     </div>
 
     <div id="gameOver">
-        <h1>WASTED</h1>
+        <h1 style="color:#fff; text-shadow:0 0 20px #f00;">WASTED</h1>
         <p id="fS" style="color:#fff; font-size:24px;">SCORE: 0</p>
         <button class="btn" onclick="start()">RESTART</button>
         <button class="btn" style="font-size:14px; min-width:140px; background:#222; border:1px solid var(--p);" onclick="tgl('gMod')">MODS</button>
@@ -64,12 +71,12 @@
     <script>
         const cvs=document.getElementById('game'), ctx=cvs.getContext('2d'), m=document.getElementById('menu'), g=document.getElementById('gameOver'), jb=document.getElementById('jumpBtn'), u=document.getElementById('ui');
         cvs.width=window.innerWidth; cvs.height=320;
-        let p, obs, sc, spd, run=false, clr='#f00', bgClr='#300';
+        let p, obs, sc, spd, run=false, clr='#f00', particles=[];
 
         function start(){
             run=true; m.style.display='none'; g.style.display='none'; cvs.style.display='block'; jb.style.display='block'; u.style.display='block';
-            p={x:60, y:220, w:45, h:45, dy:0, g:0.8, jump:15, onG:false, angle:0};
-            obs=[]; sc=0; spd=7.5; document.getElementById('s').innerText=0;
+            p={x:60, y:220, w:42, h:42, dy:0, g:0.8, jump:15, onG:false, angle:0};
+            obs=[]; sc=0; spd=7; document.getElementById('s').innerText=0;
             loop();
         }
 
@@ -77,67 +84,84 @@
 
         function loop(){
             if(!run) return;
-            
-            // Clear and draw background eyes
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, cvs.width, cvs.height);
-            
-            ctx.fillStyle = bgClr;
-            ctx.beginPath();
-            ctx.arc(cvs.width * 0.3, 100, 15, 0, Math.PI * 2);
-            ctx.arc(cvs.width * 0.7, 100, 15, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Physics
+            ctx.clearRect(0,0,cvs.width,cvs.height);
             p.dy+=p.g; p.y+=p.dy;
             if(p.y+p.h>=320){ p.y=320-p.h; p.dy=0; p.onG=true; p.angle=0; }
+            
+            // SMOKE EFFECT (TRAIL) - പുകയുടെ എഫക്റ്റ്
+            if(p.onG || !p.onG) {
+                particles.push({
+                    x: p.x + p.w/2,
+                    y: p.y + p.h/2,
+                    size: Math.random() * 10 + 5,
+                    color: clr, // മോഡിന് അനുസരിച്ച് കളർ മാറും
+                    life: Math.random() * 20 + 10
+                });
+            }
+
+            // Draw and update particles
+            for(let i=particles.length-1; i>=0; i--) {
+                ctx.fillStyle = particles[i].color;
+                ctx.globalAlpha = particles[i].life / 30; // പുക പതുക്കെ മാഞ്ഞുപോകും
+                ctx.beginPath();
+                ctx.arc(particles[i].x, particles[i].y, particles[i].size, 0, Math.PI*2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+                particles[i].x -= spd/2; // പുക പിന്നിലേക്ക് നീങ്ങും
+                particles[i].life--;
+                if(particles[i].life <= 0) particles.splice(i,1);
+            }
+
+            // ROTATION ANIMATION LOGIC - ചാടുമ്പോൾ കറങ്ങും
             if(!p.onG) { p.angle += 10; } 
 
-            // PLAYER DRAWING
+            // Player Drawing with Rotation
             ctx.save();
             ctx.translate(p.x + p.w/2, p.y + p.h/2);
             ctx.rotate(p.angle * Math.PI / 180);
             
-            // Player Body
             ctx.fillStyle='#000'; ctx.shadowBlur=15; ctx.shadowColor=clr;
             ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
             
-            // Player Eyes - കൃത്യമായി കാണാൻ വേണ്ടി shadow മാറ്റി വരയ്ക്കുന്നു
-            ctx.shadowBlur=0;
-            ctx.fillStyle=clr;
+            // Eyes
+            ctx.fillStyle=clr; ctx.shadowBlur=0;
             ctx.beginPath(); 
-            ctx.arc(-p.w/2 + 14, -p.h/2 + 16, 6, 0, Math.PI*2); 
-            ctx.arc(-p.w/2 + 32, -p.h/2 + 16, 6, 0, Math.PI*2); 
+            ctx.arc(-p.w/2 + 12, -p.h/2 + 15, 5, 0, Math.PI*2); 
+            ctx.arc(-p.w/2 + 30, -p.h/2 + 15, 5, 0, Math.PI*2); 
             ctx.fill();
             ctx.restore();
 
-            // Spikes
-            if(Math.random()<0.02 && (obs.length==0 || obs[obs.length-1].x < cvs.width-320)){
-                let dbl = Math.random() > 0.7;
-                obs.push({x:cvs.width, y:320, w:35, h:50, dbl: dbl});
+            // Double Spike Logic
+            if(Math.random()<0.02 && (obs.length==0 || obs[obs.length-1].x < cvs.width-300)){
+                let double = Math.random() > 0.75;
+                obs.push({x:cvs.width, y:320, w:35, h:45, dbl: double});
             }
 
             for(let i=obs.length-1; i>=0; i--){
                 obs[i].x-=spd;
                 ctx.fillStyle='#fff'; ctx.shadowBlur=0;
+                drawSpike(obs[i].x, 320, obs[i].h);
+                if(p.x < obs[i].x+30 && p.x+p.w > obs[i].x+5 && p.y+p.h > 320-obs[i].h) over();
                 
-                // Spike 1
-                ctx.beginPath(); ctx.moveTo(obs[i].x, 320); ctx.lineTo(obs[i].x+17, 320-obs[i].h); ctx.lineTo(obs[i].x+35, 320); ctx.fill();
-                if(p.x < obs[i].x+28 && p.x+p.w > obs[i].x+7 && p.y+p.h > 320-obs[i].h) over();
-                
-                // Spike 2
                 if(obs[i].dbl){
-                    ctx.beginPath(); ctx.moveTo(obs[i].x+45, 320); ctx.lineTo(obs[i].x+62, 320-obs[i].h); ctx.lineTo(obs[i].x+80, 320); ctx.fill();
-                    if(p.x < obs[i].x+75 && p.x+p.w > obs[i].x+50 && p.y+p.h > 320-obs[i].h) over();
+                    drawSpike(obs[i].x+40, 320, obs[i].h);
+                    if(p.x < obs[i].x+70 && p.x+p.w > obs[i].x+45 && p.y+p.h > 320-obs[i].h) over();
                 }
                 if(obs[i].x < -100){ obs.splice(i,1); sc++; document.getElementById('s').innerText=sc; spd+=0.1; }
             }
             requestAnimationFrame(loop);
         }
 
+        function drawSpike(x, y, h){
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x+17, y-h); ctx.lineTo(x+35, y); ctx.fill();
+        }
+
         function over(){ run=false; cvs.style.display='none'; jb.style.display='none'; u.style.display='none'; g.style.display='flex'; document.getElementById('fS').innerText='SCORE: '+sc; }
         function tgl(id){ let e=document.getElementById(id); e.style.display=(e.style.display=='block')?'none':'block'; }
-        function set(c, b){ clr=c; bgClr=b; document.documentElement.style.setProperty('--p', c); }
+        function set(c, b){ 
+            clr=c; document.documentElement.style.setProperty('--p', c); 
+            cvs.style.backgroundImage = `radial-gradient(circle at 30% 35%, ${b} 2%, transparent 15%), radial-gradient(circle at 70% 35%, ${b} 2%, transparent 15%), radial-gradient(ellipse at 50% 85%, ${b} 15%, transparent 35%)`;
+        }
     </script>
 </body>
 </html>
