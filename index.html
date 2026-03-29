@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DEVIL DASH - FINAL REPAIR</title>
+    <title>DEVIL DASH - MODS FIXED</title>
     <style>
         :root { --p: #f00; --bg: radial-gradient(circle, #300, #000); }
         body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; touch-action: none; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: var(--p); }
@@ -35,6 +35,13 @@
         <h1>WASTED</h1>
         <p id="fS" style="font-size:24px; color:white; margin:10px 0;">SCORE: 0</p>
         <button class="btn" onclick="startGame()">RESTART</button>
+        <button class="btn" style="font-size:16px; padding:10px;" onclick="toggleM('gMod')">MODS</button>
+        <div id="gMod" class="modBox">
+            <button class="modOpt" style="color:#f00; border-color:#f00;" onclick="upMod('#f00','#300')">RED</button>
+            <button class="modOpt" style="color:#00f; border-color:#00f;" onclick="upMod('#00f','#003')">BLUE</button>
+            <button class="modOpt" style="color:#0f0; border-color:#0f0;" onclick="upMod('#0f0','#030')">GREEN</button>
+            <button class="modOpt" style="color:#f0f; border-color:#f0f;" onclick="upMod('#f0f','#303')">VIOLET</button>
+        </div>
     </div>
 
     <div id="ui">SCORE: <span id="s">0</span></div>
@@ -43,16 +50,12 @@
 
     <script>
         const cvs=document.getElementById('game'), ctx=cvs.getContext('2d'), mnu=document.getElementById('menu'), gov=document.getElementById('gameOver'), jmp=document.getElementById('jumpBtn'), scr=document.getElementById('ui'), root=document.documentElement;
-        
-        // Dynamic Canvas Size
-        cvs.width=window.innerWidth; 
-        cvs.height=350; // ഫോൺ സ്ക്രീനിൽ കൃത്യമായി കാണാൻ ഹൈറ്റ് കുറച്ചു
+        cvs.width=window.innerWidth; cvs.height=350;
         
         let p, obs, bats, sc, spd, act=false, lS=0, clr='#f00';
 
         function startGame(){
             act=true; mnu.style.display='none'; gov.style.display='none'; cvs.style.display='block'; jmp.style.display='block'; scr.style.display='block';
-            // Player position fixed to stay inside canvas
             p={x:60, y:200, w:40, h:40, dy:0, j:15, g:0.8, gr:false}; 
             obs=[]; bats=[]; sc=0; spd=6; lS=Date.now();
             document.getElementById('s').innerText=0; 
@@ -64,25 +67,16 @@
         function gameLoop(){
             if(!act) return; 
             ctx.clearRect(0,0,cvs.width,cvs.height);
-
-            // Step Speed Logic: സ്കോർ 20, 40, 60 എന്നിങ്ങനെ കൂടുമ്പോൾ മാത്രം സ്പീഡ് കൂടും
             spd = 6 + Math.floor(sc / 20);
             if(spd > 14) spd = 14; 
 
-            // Gravity & Ground logic
             p.dy+=p.g; p.y+=p.dy; 
-            if(p.y+p.h >= cvs.height){ 
-                p.y=cvs.height-p.h; 
-                p.dy=0; 
-                p.gr=true; 
-            }
+            if(p.y+p.h >= cvs.height){ p.y=cvs.height-p.h; p.dy=0; p.gr=true; }
 
-            // DRAW PLAYER (Devil eyes look)
             ctx.shadowBlur=15; ctx.shadowColor=clr; ctx.fillStyle='#111'; 
             ctx.fillRect(p.x, p.y, p.w, p.h);
             ctx.fillStyle=clr; ctx.beginPath(); ctx.arc(p.x+10,p.y+15,3,0,Math.PI*2); ctx.arc(p.x+30,p.y+15,3,0,Math.PI*2); ctx.fill();
 
-            // SPAWN TRIANGLES
             let n=Date.now();
             if(n-lS > (1700 - (spd*40)) && Math.random()<0.08){
                 let isDouble = Math.random() > 0.7; 
@@ -90,12 +84,10 @@
                 lS=n;
             }
 
-            // SPAWN LARGE BIRDS (Only after Score 20)
             if(sc >= 20 && Math.random() < 0.02 && bats.length < 2){
                 bats.push({x:cvs.width, y: cvs.height - 130, w:60, h:40});
             }
 
-            // DRAW TRIANGLES
             for(let i=obs.length-1; i>=0; i--){
                 obs[i].x-=spd; 
                 ctx.shadowBlur=0; ctx.fillStyle='#fff';
@@ -108,23 +100,22 @@
                 if(obs[i].x < -100){ obs.splice(i,1); sc++; document.getElementById('s').innerText=sc; }
             }
 
-            // DRAW LARGE BIRDS
             for(let i=bats.length-1; i>=0; i--){
                 bats[i].x -= (spd + 2);
                 ctx.fillStyle = clr; ctx.shadowBlur=10; ctx.shadowColor=clr;
-                ctx.beginPath();
-                ctx.moveTo(bats[i].x, bats[i].y + 20);
-                ctx.lineTo(bats[i].x + 30, bats[i].y);
-                ctx.lineTo(bats[i].x + 60, bats[i].y + 20);
-                ctx.lineTo(bats[i].x + 30, bats[i].y + 40);
-                ctx.fill();
+                ctx.beginPath(); ctx.moveTo(bats[i].x, bats[i].y + 20); ctx.lineTo(bats[i].x + 30, bats[i].y); ctx.lineTo(bats[i].x + 60, bats[i].y + 20); ctx.lineTo(bats[i].x + 30, bats[i].y + 40); ctx.fill();
                 if(p.x < bats[i].x+bats[i].w && p.x+p.w > bats[i].x && p.y < bats[i].y+bats[i].h && p.y+p.h > bats[i].y) end();
                 if(bats[i].x < -100) bats.splice(i,1);
             }
             requestAnimationFrame(gameLoop);
         }
 
-        function end(){ act=false; cvs.style.display='none'; jmp.style.display='none'; scr.style.display='none'; gov.style.display='flex'; document.getElementById('fS').innerText='SCORE: '+sc; }
+        function end(){ 
+            act=false; cvs.style.display='none'; jmp.style.display='none'; scr.style.display='none'; 
+            gov.style.display='flex'; document.getElementById('fS').innerText='SCORE: '+sc; 
+            // മോഡ് ബോക്സ് ഓപ്പൺ ആണെങ്കിൽ ക്ലോസ് ചെയ്യാൻ
+            document.getElementById('gMod').style.display='none';
+        }
         function toggleM(id){ let el=document.getElementById(id); el.style.display=(el.style.display==='block')?'none':'block'; }
         function upMod(c, b){ clr=c; root.style.setProperty('--p',c); root.style.setProperty('--bg',`radial-gradient(circle, ${b}, #000)`); }
     </script>
