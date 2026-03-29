@@ -3,30 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DEVIL DASH - MOD MENU</title>
+    <title>DEVIL DASH - TOTAL MOD MENU</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; touch-action: none; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        canvas { background: radial-gradient(circle, #200, #000); border-bottom: 5px solid #f00; display: none; width: 100vw; height: 400px; }
-        #menu, #gameOver { text-align: center; color: #f00; position: absolute; z-index: 10; }
+        :root {
+            --primary-color: #f00; /* Default Red */
+            --bg-glow: radial-gradient(circle, #300, #000);
+        }
+        body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; touch-action: none; display: flex; justify-content: center; align-items: center; height: 100vh; color: var(--primary-color); }
+        canvas { background: var(--bg-glow); border-bottom: 5px solid var(--primary-color); display: none; width: 100vw; height: 400px; }
+        #menu, #gameOver { text-align: center; position: absolute; z-index: 10; width: 100%; }
         #gameOver { display: none; }
-        .btn { background: #f00; color: #fff; border: none; padding: 15px 40px; font-size: 22px; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 0 15px #f00; margin-top: 20px; }
-        #jumpBtn { position: absolute; bottom: 20px; right: 20px; width: 85px; height: 85px; background: rgba(255,0,0,0.2); border: 3px solid #f00; border-radius: 50%; color: #fff; display: none; z-index: 100; font-weight: bold; font-size: 16px; outline: none; }
-        #ui { position: absolute; top: 20px; left: 20px; color: #f00; font-size: 18px; font-weight: bold; display: none; letter-spacing: 2px; }
+        h1 { font-size: 45px; letter-spacing: 8px; margin-bottom: 10px; color: var(--primary-color); text-shadow: 0 0 10px var(--primary-color); }
+        h3 { font-size: 20px; color: #fff; text-transform: uppercase; letter-spacing: 2px; }
+        .btn { background: var(--primary-color); color: #fff; border: none; padding: 15px 40px; font-size: 22px; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 0 15px var(--primary-color); margin-top: 20px; text-transform: uppercase; transition: 0.2s; }
+        .btn:active { transform: scale(0.95); box-shadow: 0 0 5px var(--primary-color); }
         
+        #jumpBtn { position: absolute; bottom: 20px; right: 20px; width: 85px; height: 85px; background: rgba(0,0,0,0.3); border: 3px solid var(--primary-color); border-radius: 50%; color: var(--primary-color); display: none; z-index: 100; font-weight: bold; font-size: 16px; outline: none; box-shadow: 0 0 10px var(--primary-color); }
+        #ui { position: absolute; top: 20px; left: 20px; color: var(--primary-color); font-size: 18px; font-weight: bold; display: none; letter-spacing: 2px; text-shadow: 0 0 5px var(--primary-color); }
+
         /* MOD MENU STYLES */
-        #modBtn { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.6); color: #0f0; border: 2px solid #0f0; padding: 8px 15px; border-radius: 5px; cursor: pointer; z-index: 101; font-weight: bold; font-size: 14px; display: none; }
-        #modMenu { position: absolute; top: 60px; right: 20px; background: rgba(0,0,0,0.9); border: 2px solid #0f0; padding: 15px; border-radius: 10px; z-index: 102; display: none; width: 150px; text-align: center; color: #0f0; }
-        #modMenu h3 { margin: 0 0 10px 0; font-size: 18px; text-decoration: underline; }
-        .modOpt { background: transparent; color: #fff; border: 1px solid #fff; padding: 8px; width: 100%; margin-bottom: 8px; border-radius: 5px; cursor: pointer; font-size: 14px; }
-        .modOpt:hover { background: rgba(255,255,255,0.2); }
+        #modMenu { display: none; margin-top: 20px; border: 2px solid var(--primary-color); padding: 15px; border-radius: 15px; background: rgba(0,0,0,0.8); width: 80%; max-width: 300px; margin-left: auto; margin-right: auto; }
+        .modOpt { background: transparent; color: #fff; border: 2px solid #fff; padding: 10px; width: 100%; margin-bottom: 10px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; text-transform: uppercase; transition: 0.1s; }
     </style>
 </head>
 <body>
 
     <div id="menu">
-        <h1 style="font-size: 45px; letter-spacing: 8px; margin-bottom: 10px;">DEVIL DASH</h1>
-        <p style="color: #666; margin-bottom: 30px;">FAIR JUMPS | NO LAG</p>
+        <h1>DEVIL DASH</h1>
+        <p style="color: #666; margin-bottom: 30px;">TOTAL COLOUR MOD v1</p>
+        
         <button class="btn" onclick="initGame()">START GAME</button>
+        <br>
+        <button id="mainModBtn" class="btn" style="background: var(--primary-color); font-size: 18px; padding: 10px 30px; margin-top: 30px;" onclick="toggleModMenu()">MODS</button>
+        
+        <div id="modMenu">
+            <h3>SELECT COLOUR</h3>
+            <button class="modOpt" style="color: #f00; border-color: #f00;" onclick="applyTotalMod('#f00', '#300')">RED (Default)</button>
+            <button class="modOpt" style="color: #00f; border-color: #00f;" onclick="applyTotalMod('#00f', '#003')">BLUE</button>
+            <button class="modOpt" style="color: #0f0; border-color: #0f0;" onclick="applyTotalMod('#0f0', '#030')">GREEN</button>
+            <button class="modOpt" style="color: #f0f; border-color: #f0f;" onclick="applyTotalMod('#f0f', '#303')">VIOLET</button>
+            <button class="btn" style="padding: 5px 15px; font-size: 14px; background: #555; box-shadow: none; margin-top: 10px;" onclick="toggleModMenu()">CLOSE</button>
+        </div>
     </div>
 
     <div id="gameOver">
@@ -39,15 +56,6 @@
     <canvas id="game"></canvas>
     <button id="jumpBtn" onmousedown="jump()" ontouchstart="jump()">JUMP</button>
 
-    <button id="modBtn" onclick="toggleModMenu()">MODS</button>
-    <div id="modMenu">
-        <h3>PLAYER COLOR</h3>
-        <button class="modOpt" style="color: #f00; border-color: #f00;" onclick="setPlayerColor('#111', '#f00')">RED (Default)</button>
-        <button class="modOpt" style="color: #fff; border-color: #fff;" onclick="setPlayerColor('#fff', '#000')">WHITE</button>
-        <button class="modOpt" style="color: #00f; border-color: #00f;" onclick="setPlayerColor('#00f', '#fff')">BLUE</button>
-        <button class="btn" style="padding: 5px 15px; font-size: 14px; background: #555; box-shadow: none;" onclick="toggleModMenu()">CLOSE</button>
-    </div>
-
     <script>
         const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
@@ -55,19 +63,14 @@
         const gameOver = document.getElementById('gameOver');
         const jumpBtn = document.getElementById('jumpBtn');
         const ui = document.getElementById('ui');
-        
-        // MOD Elements
-        const modBtn = document.getElementById('modBtn');
         const modMenu = document.getElementById('modMenu');
+        const root = document.documentElement;
 
         canvas.width = window.innerWidth;
         canvas.height = 400;
 
         let p, obs, score, speed, active = false, lastSpawn = 0;
-        
-        // Player Colors (MOD)
-        let playerBodyColor = '#111'; // Default: Dark Body
-        let playerEyeColor = '#f00';  // Default: Red Eyes
+        let currentColor = '#f00'; // Stores the selected primary color
 
         function initGame() {
             active = true;
@@ -76,7 +79,7 @@
             canvas.style.display = 'block';
             jumpBtn.style.display = 'block';
             ui.style.display = 'block';
-            modBtn.style.display = 'block'; // Show MOD button
+            modMenu.style.display = 'none'; // Close MOD menu if open
 
             p = { x: 80, y: 300, w: 40, h: 40, dy: 0, j: 14, g: 0.8, gr: false };
             obs = [];
@@ -108,19 +111,19 @@
                 p.gr = true;
             }
 
-            // Monster Design (Modified to use variables)
+            // Monster Design (Uses currentColor)
             ctx.shadowBlur = 15;
-            ctx.shadowColor = playerEyeColor; // Eye color for glow
-            ctx.fillStyle = playerBodyColor; // Body Color (MOD)
+            ctx.shadowColor = currentColor; 
+            ctx.fillStyle = '#111'; // Body stays dark
             ctx.fillRect(p.x, p.y, p.w, p.h);
             
-            ctx.fillStyle = playerEyeColor; // Eye Color (MOD)
+            ctx.fillStyle = currentColor; // Eyes match the selected color
             ctx.beginPath();
             ctx.arc(p.x + 10, p.y + 15, 3, 0, Math.PI * 2);
             ctx.arc(p.x + 30, p.y + 15, 3, 0, Math.PI * 2);
             ctx.fill();
 
-            // Fair Obstacle Spawning (1.4s minimum gap)
+            // Obstacle Spawning
             let now = Date.now();
             if (now - lastSpawn > 1400 && Math.random() < 0.05) {
                 obs.push({ x: canvas.width, y: 365, w: 32, h: 35 });
@@ -131,7 +134,7 @@
                 obs[i].x -= speed;
                 
                 ctx.shadowBlur = 0;
-                ctx.fillStyle = '#fff'; // Spikes remain white
+                ctx.fillStyle = '#fff'; // Spikes stay white
                 ctx.beginPath();
                 ctx.moveTo(obs[i].x, 400);
                 ctx.lineTo(obs[i].x + obs[i].w / 2, 400 - obs[i].h);
@@ -162,8 +165,6 @@
             canvas.style.display = 'none';
             jumpBtn.style.display = 'none';
             ui.style.display = 'none';
-            modBtn.style.display = 'none'; // Hide MOD button
-            modMenu.style.display = 'none'; // Hide MOD menu if open
             gameOver.style.display = 'block';
             document.getElementById('finalScore').innerText = score;
         }
@@ -177,9 +178,11 @@
             }
         }
         
-        function setPlayerColor(body, eye) {
-            playerBodyColor = body;
-            playerEyeColor = eye;
+        function applyTotalMod(color, bgGlowColor) {
+            currentColor = color;
+            // Change CSS variables (Changes ALL Red elements in UI)
+            root.style.setProperty('--primary-color', color);
+            root.style.setProperty('--bg-glow', `radial-gradient(circle, ${bgGlowColor}, #000)`);
             // modMenu.style.display = 'none'; // Optional: Close menu after selection
         }
     </script>
