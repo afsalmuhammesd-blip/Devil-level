@@ -5,10 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DEVIL DASH - MOD MENU v2</title>
     <style>
-        :root {
-            --primary-color: #f00; /* Default Red */
-            --bg-glow: radial-gradient(circle, #300, #000);
-        }
-        body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; touch-action: none; display: flex; justify-content: center; align-items: center; height: 100vh; color: var(--primary-color); }
+        :root { --primary-color: #f00; --bg-glow: radial-gradient(circle, #300, #000); }
+        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; touch-action: none; display: flex; justify-content: center; align-items: center; height: 100vh; color: var(--primary-color); }
         canvas { background: var(--bg-glow); border-bottom: 5px solid var(--primary-color); display: none; width: 100vw; height: 400px; }
-        #menu, #gameOver { text
+        #menu, #gameOver { text-align: center; position: absolute; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #gameOver { display: none; }
+        h1 { font-size: 45px; letter-spacing: 8px; margin: 0 0 10px 0; color: var(--primary-color); text-shadow: 0 0 10px var(--primary-color); }
+        h3 { font-size: 18px; color: #fff; text-transform: uppercase; margin-bottom: 10px; }
+        .btn { background: var(--primary-color); color: #fff; border: none; padding: 15px 40px; font-size: 22px; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 0 15px var(--primary-color); margin-top: 10px; text-transform: uppercase; min-width: 200px; }
+        #jumpBtn { position: absolute; bottom: 20px; right: 20px; width: 85px; height: 85px; background: rgba(0,0,0,0.3); border: 3px solid var(--primary-color); border-radius: 50%; color: var(--primary-color); display: none; z-index: 100; font-weight: bold; }
+        #ui { position: absolute; top: 20px; left: 20px; color: var(--primary-color); font-size: 18px; font-weight: bold; display: none; }
+        .modContainer { margin-top: 20px; border: 2px solid var(--primary-color); padding: 15px; border-radius: 15px; background: rgba(0,0,0,0.9); width: 250px; display: none; }
+        .modOpt { background: transparent; color: #fff; border: 2px solid #fff; padding: 8px; width: 100%; margin-bottom: 8px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold
