@@ -3,7 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DEVIL DASH - V7 FIX</title>
+    <title>DEVIL DASH - FIXED ANIMATION</title>
     <style>
         :root { --p: #f00; }
-        body { margin
+        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; touch-action: none; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
+        
+        canvas { 
+            background: #000;
+            border-bottom: 5px solid var(--p); display: none; width: 100vw; height: 320px; 
+        }
+        
+        #menu, #gameOver { text-align: center; position: absolute; z-index: 100; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; height: 100vh; top: 0; }
+        #gameOver { display: none; background: rgba(0,0,0,0.9); }
+        
+        h1 { font-size: 45px; color: var(--p); text-shadow: 0 0 15px var(--p); margin: 0 0 20px 0; font-weight: 900; }
+        .btn { background: var(--p); color: #fff; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 12px; margin-top: 15px; min-width: 200px; box-shadow: 0 0 15px var(--p); cursor: pointer; }
+        
+        #jumpBtn { 
+            position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; 
+            background: rgba(255,0,0,0.2); border: 2px solid var(--p); border-radius: 50%; 
+            color: var(--p); display: none; z-index: 1000; font-weight: bold; font-size: 12px;
+            box-shadow: 0 0 10px var(--p); outline: none; -webkit-tap-highlight-color: transparent;
+        }
+        
+        #ui { position: fixed; top: 25px; left: 20px; color: var(--p); font-size: 22px; font-weight: bold; display: none; z-index: 10; }
+        .modBox { margin-top: 10px; border: 1px solid var(--p); padding: 10px; border-radius: 10px; display: none; width: 220px; background: #050505; }
+        .modOpt { background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 12px; width: 100%; margin-bottom: 6px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div id="menu">
+        <h1>DEVIL DASH</h1>
+        <button class="btn" onclick="start()">START GAME</button>
+        <button class="btn" style="font-size:14px; min-width:140px; background:#222; border:1px solid var(--p);" onclick="tgl('mMod')">MODS</button>
+        <div id="mMod" class="modBox">
+            <button class="modOpt" style="color:#f00;" onclick="set('#f00','#400')">RED DEVIL</button>
+            <button class="modOpt" style="color:#00f;" onclick="set('#00f','#004')">BLUE DEVIL</button>
+            <button class="modOpt" style="color:#0f0;" onclick="set('#0f0','#040')">GREEN DEVIL</button>
+        </div>
+    </div>
+
+    <div id="gameOver">
+        <h1>WASTED</h1>
+        <p id="fS" style="color:#fff; font-size:24px;">SCORE: 0</p>
+        <button class="btn" onclick="start()">RESTART</button>
+        <button class="btn" style="font-size:14px; min-width:140px; background:#222; border:1px solid var(--p);" onclick="tgl('gMod')">MODS</button>
+        <div id="gMod" class="modBox">
+            <button class="modOpt" onclick="set('#f00','#400')">RED</button>
+            <button class="modOpt" onclick="set('#00f','#004')">BLUE</button>
+            <button class="modOpt" onclick="set('#0f0','#040')">GREEN</button>
+        </div>
+    </div>
+
+    <div id="ui">SCORE: <span id="s">0</span></div>
+    <canvas id="game"></canvas>
+    <button id="jumpBtn" ontouchstart="jmp(event)" onmousedown="jmp(event)">JUMP</button>
+
+    <script>
+        const cvs=document.getElementById('game'), ctx=cvs.getContext('2d'), m=document.getElementById('menu'), g=document.getElementById('gameOver'), jb=document.getElementById('jumpBtn'), u=document.getElementById('ui');
+        cvs.width=window.innerWidth; cvs.height=320;
+        let p, obs, sc, spd, run=false, clr='#f00', bgClr='#300', smoke=[];
+
+        function start(){
+            run=true; m.style.display='none'; g.style.display='none'; cvs.style.display='block'; jb.style.display='block'; u.style.display='block';
+            p={x:60, y:220, w:45, h:45, dy:0, g:0.8, jump:15, onG:false, angle:0};
+            obs=[]; sc=0; spd=7.5; smoke=[]; document.getElementById('s').innerText=0;
+            loop();
+        }
+
+        function jmp(e){ if(e) e.preventDefault(); if(p.onG){ p.dy=-p.jump; p.onG=false; } }
+
+        function loop(){
+            if(!run) return;
+            ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cvs.width, cvs.height);
+            
+            // Background Devil Eyes
+            ctx.fillStyle = bgClr; ctx.beginPath();
+            ctx.arc(cvs.width * 0.3, 100, 15, 0, Math.PI * 2);
+            ctx.arc(cvs.width * 0.7, 100, 15, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Smoke Trail Logic
+            smoke.push({x: p.x + p.w/4, y: p.y + p.h/2 + Math.random()*10, life: 1.0});
+            for(let i=smoke.length-1; i>=0; i--){
+                smoke[i].x -= spd/2; smoke[i].life -= 0.05;
+                if(smoke[i].life <= 0) { smoke.splice(i,1); continue; }
+                ctx.fillStyle = clr; ctx.globalAlpha = smoke[i].life * 0.4;
+                ctx.beginPath(); ctx.arc(smoke[i].x, smoke[i].y, 8, 0, Math.PI*2); ctx.fill();
+            }
+            ctx.globalAlpha = 1.0;
+
+            // Physics & Rotation
+            p.dy+=p.g; p.y+=p.dy;
+            if(p.y+p.h>=320){ p.y=320-p.h; p.dy=0; p.onG=true; p.angle=0; }
+            if(!p.onG) { p.angle += 12; } 
+
+            // PLAYER DRAWING (Top Layer)
+            ctx.save();
+            ctx.translate(p.x + p.w/2, p.y + p.h/2);
+            ctx.rotate(p.angle * Math.PI / 180);
+            ctx.fillStyle='#000'; ctx.shadowBlur=15; ctx.shadowColor=clr;
+            ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+            ctx.shadowBlur=0; ctx.fillStyle=clr; ctx.beginPath(); 
+            ctx.arc(-p.w/2 + 14, -p.h/2 + 16, 6, 0, Math.PI*2); 
+            ctx.arc(-p.w/2 + 32, -p.h/2 + 16, 6, 0, Math.PI*2); 
+            ctx.fill(); ctx.restore();
+
+            // Obstacles
+            if(Math.random()<0.02 && (obs.length==0 || obs[obs.length-1].x < cvs.width-320)){
+                obs.push({x:cvs.width, y:320, w:35, h:50, dbl: Math.random() > 0.7});
+            }
+            for(let i=obs.length-1; i>=0; i--){
+                obs[i].x-=spd; ctx.fillStyle='#fff';
+                ctx.beginPath(); ctx.moveTo(obs[i].x, 320); ctx.lineTo(obs[i].x+17, 320-obs[i].h); ctx.lineTo(obs[i].x+35, 320); ctx.fill();
+                if(p.x < obs[i].x+28 && p.x+p.w > obs[i].x+7 && p.y+p.h > 320-obs[i].h) over();
+                if(obs[i].dbl){
+                    ctx.beginPath(); ctx.moveTo(obs[i].x+45, 320); ctx.lineTo(obs[i].x+62, 320-obs[i].h); ctx.lineTo(obs[i].x+80, 320); ctx.fill();
+                    if(p.x < obs[i].x+75 && p.x+p.w > obs[i].x+50 && p.y+p.h > 320-obs[i].h) over();
+                }
+                if(obs[i].x < -100){ obs.splice(i,1); sc++; document.getElementById('s').innerText=sc; spd+=0.1; }
+            }
+            requestAnimationFrame(loop);
+        }
+
+        function over(){ run=false; cvs.style.display='none'; jb.style.display='none'; u.style.display='none'; g.style.display='flex'; document.getElementById('fS').innerText='SCORE: '+sc; }
+        function tgl(id){ let e=document.getElementById(id); e.style.display=(e.style.display=='block')?'none':'block'; }
+        function set(c, b){ clr=c; bgClr=b; document.documentElement.style.setProperty('--p', c); }
+    </script>
+</body>
+</html>
