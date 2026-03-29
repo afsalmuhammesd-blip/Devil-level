@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DEVIL DASH - MODS FIXED</title>
+    <title>DEVIL DASH - MODS REPAIRED</title>
     <style>
         :root { --p: #f00; --bg: radial-gradient(circle, #300, #000); }
         body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; touch-action: none; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: var(--p); }
         canvas { background: var(--bg); border-bottom: 5px solid var(--p); display: none; max-width: 100%; }
-        #menu, #gameOver { text-align: center; position: absolute; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; }
-        #gameOver { display: none; }
+        #menu, #gameOver { text-align: center; position: absolute; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #gameOver { display: none; background: rgba(0,0,0,0.8); height: 100vh; }
         h1 { font-size: 45px; color: var(--p); text-shadow: 0 0 10px var(--p); margin: 0; }
-        .btn { background: var(--p); color: #fff; border: none; padding: 15px 35px; font-size: 20px; font-weight: bold; border-radius: 10px; margin-top: 15px; min-width: 200px; box-shadow: 0 0 10px var(--p); cursor: pointer; }
+        .btn { background: var(--p); color: #fff; border: none; padding: 15px 35px; font-size: 20px; font-weight: bold; border-radius: 10px; margin-top: 10px; min-width: 200px; box-shadow: 0 0 10px var(--p); cursor: pointer; }
         #jumpBtn { position: fixed; bottom: 30px; right: 30px; width: 90px; height: 90px; background: rgba(255,0,0,0.2); border: 4px solid var(--p); border-radius: 50%; color: var(--p); display: none; z-index: 100; font-weight: bold; font-size: 18px; outline: none; }
         #ui { position: fixed; top: 20px; left: 20px; color: var(--p); font-size: 20px; font-weight: bold; display: none; }
-        .modBox { margin-top: 15px; border: 2px solid var(--p); padding: 15px; border-radius: 12px; background: rgba(0,0,0,0.9); width: 220px; display: none; }
+        .modBox { margin-top: 10px; border: 2px solid var(--p); padding: 10px; border-radius: 12px; background: #111; width: 200px; display: none; }
         .modOpt { background: transparent; color: #fff; border: 1px solid #fff; padding: 8px; width: 100%; margin-bottom: 5px; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
@@ -113,7 +113,6 @@
         function end(){ 
             act=false; cvs.style.display='none'; jmp.style.display='none'; scr.style.display='none'; 
             gov.style.display='flex'; document.getElementById('fS').innerText='SCORE: '+sc; 
-            // മോഡ് ബോക്സ് ഓപ്പൺ ആണെങ്കിൽ ക്ലോസ് ചെയ്യാൻ
             document.getElementById('gMod').style.display='none';
         }
         function toggleM(id){ let el=document.getElementById(id); el.style.display=(el.style.display==='block')?'none':'block'; }
