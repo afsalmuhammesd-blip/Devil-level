@@ -45,32 +45,29 @@
     <button id="jumpBtn" ontouchstart="jmp(event)" onmousedown="jmp(event)">JUMP</button>
 
     <audio id="bgTune" src="https://assets.mixkit.co/active_storage/sfx/2123/2123-preview.mp3" loop></audio>
-    <audio id="jumpSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
-    <audio id="dieSound" src="https://www.myinstants.com/media/sounds/meme-de-creditos-finales.mp3"></audio>
+    <audio id="jsnd" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+    <audio id="dsnd" src="https://www.myinstants.com/media/sounds/meme-de-creditos-finales.mp3"></audio>
 
     <script>
         const cvs=document.getElementById('gameStage'), ctx=cvs.getContext('2d'), sl=document.getElementById('splash'), m=document.getElementById('menu'), g=document.getElementById('gameOver'), jb=document.getElementById('jumpBtn'), st=document.getElementById('stats');
-        const bg=document.getElementById('bgTune'), js=document.getElementById('jumpSound'), ds=document.getElementById('dieSound');
+        const bg=document.getElementById('bgTune'), js=document.getElementById('jsnd'), ds=document.getElementById('dsnd');
         cvs.width=window.innerWidth; cvs.height=320;
         
         let p, obs, sc, spd, run=false, hiScore = localStorage.getItem('devilHS') || 0, smoke = [];
         document.getElementById('hsMenu').innerText = hiScore;
 
+        // Splash screen only on first load
         setTimeout(() => { sl.style.display='none'; m.style.display='flex'; }, 3000);
 
         function start(){
             run=true; m.style.display='none'; g.style.display='none'; cvs.style.display='block'; jb.style.display='block'; st.style.display='block';
             p={x:60, y:220, w:45, h:45, dy:0, g:0.8, jump:15, onG:false, angle:0};
             obs=[]; sc=0; spd=8; smoke=[];
-            bg.currentTime = 0;
-            bg.play().catch(() => {}); // തുടർച്ചയായി പ്ലേ ചെയ്യാൻ
+            bg.currentTime=0; bg.play().catch(()=>{});
             loop();
         }
 
-        function jmp(e){ 
-            if(e) e.preventDefault(); 
-            if(p.onG){ p.dy=-p.jump; p.onG=false; js.currentTime=0; js.play(); } 
-        }
+        function jmp(e){ if(e) e.preventDefault(); if(p.onG){ p.dy=-p.jump; p.onG=false; js.currentTime=0; js.play(); } }
 
         function loop(){
             if(!run) return;
@@ -95,14 +92,22 @@
             ctx.shadowBlur=0; ctx.fillStyle='#f00'; ctx.beginPath(); ctx.arc(-10,-8,6,0,Math.PI*2); ctx.arc(10,-8,6,0,Math.PI*2); ctx.fill();
             ctx.restore();
 
-            if(Math.random()<0.02 && (obs.length==0 || obs[obs.length-1].x < cvs.width-300)){
-                obs.push({x:cvs.width, y:320, w:35, h:50});
+            // Logic for multiple obstacles (Triangles)
+            if(Math.random()<0.02 && (obs.length==0 || obs[obs.length-1].x < cvs.width-350)){
+                let count = 1;
+                if(spd > 12) count = 3;
+                else if(spd > 10) count = 2;
+                
+                for(let j=0; j<count; j++){
+                    obs.push({x: cvs.width + (j*40), y: 320, w: 35, h: 50});
+                }
             }
+
             for(let i=obs.length-1; i>=0; i--){
                 obs[i].x-=spd;
                 ctx.fillStyle='#fff'; ctx.beginPath(); ctx.moveTo(obs[i].x, 320); ctx.lineTo(obs[i].x+17, 320-obs[i].h); ctx.lineTo(obs[i].x+35, 320); ctx.fill();
                 if(p.x < obs[i].x+28 && p.x+p.w > obs[i].x+7 && p.y+p.h > 320-obs[i].h) over();
-                if(obs[i].x < -50){ obs.splice(i,1); sc++; spd+=0.05; document.getElementById('s').innerText=sc; }
+                if(obs[i].x < -50){ obs.splice(i,1); sc++; spd+=0.04; document.getElementById('s').innerText=sc; }
             }
             requestAnimationFrame(loop);
         }
