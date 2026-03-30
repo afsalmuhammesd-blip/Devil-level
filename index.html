@@ -44,7 +44,7 @@
     <canvas id="gameStage"></canvas>
     <button id="jumpBtn" ontouchstart="jmp(event)" onmousedown="jmp(event)">JUMP</button>
 
-    <audio id="bgTune" src="https://assets.mixkit.co/active_storage/sfx/2126/2126-preview.mp3" loop></audio>
+    <audio id="bgTune" src="https://assets.mixkit.co/active_storage/sfx/2123/2123-preview.mp3" loop></audio>
     <audio id="jumpSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
     <audio id="dieSound" src="https://www.myinstants.com/media/sounds/meme-de-creditos-finales.mp3"></audio>
 
@@ -62,7 +62,8 @@
             run=true; m.style.display='none'; g.style.display='none'; cvs.style.display='block'; jb.style.display='block'; st.style.display='block';
             p={x:60, y:220, w:45, h:45, dy:0, g:0.8, jump:15, onG:false, angle:0};
             obs=[]; sc=0; spd=8; smoke=[];
-            bg.volume = 0.5; bg.play(); // Devil Tune starts
+            bg.currentTime = 0;
+            bg.play().catch(() => {}); // തുടർച്ചയായി പ്ലേ ചെയ്യാൻ
             loop();
         }
 
@@ -107,7 +108,7 @@
         }
 
         function over(){
-            run=false; bg.pause(); bg.currentTime=0; ds.play(); 
+            run=false; bg.pause(); ds.play(); 
             if(sc > hiScore) { hiScore = sc; localStorage.setItem('devilHS', hiScore); }
             g.style.display='flex'; st.style.display='none'; jb.style.display='none';
             document.getElementById('finalScore').innerText = "SCORE: " + sc + " | BEST: " + hiScore;
