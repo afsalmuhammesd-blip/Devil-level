@@ -12,11 +12,9 @@
         #menu, #gameOver { display: none; }
         h1 { font-size: 45px; color: var(--p); text-shadow: 0 0 15px var(--p); margin: 0; font-weight: 900; }
         .btn { background: var(--p); color: #fff; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 12px; margin-top: 15px; min-width: 200px; cursor: pointer; }
-        #jumpBtn { position: fixed; bottom: 30px; right: 25px; width: 80px; height: 80px; background: rgba(255,0,0,0.2); border: 3px solid var(--p); border-radius: 50%; color: #fff; display: none; z-index: 1000; font-weight: bold; outline: none; -webkit-tap-highlight-color: transparent; }
-        #stats { position: fixed; top: 25px; left: 20px; color: var(--p); font-size: 20px; font-weight: bold; display: none; text-align: left; }
-        #igFooter { position: absolute; bottom: 20px; color: #666; font-size: 14px; text-decoration: none; }
-        
-        /* Loading Animation */
+        #jumpBtn { position: fixed; bottom: 30px; right: 25px; width: 80px; height: 80px; background: rgba(255,0,0,0.2); border: 3px solid var(--p); border-radius: 50%; color: #fff; display: none; z-index: 1000; font-weight: bold; outline: none; }
+        #stats { position: fixed; top: 25px; left: 20px; color: var(--p); font-size: 20px; font-weight: bold; display: none; }
+        #igFooter { position: absolute; bottom: 20px; color: #444; font-size: 12px; text-decoration: none; }
         #loader { width: 50px; height: 50px; border: 5px solid #333; border-top: 5px solid var(--p); border-radius: 50%; animation: spin 1s linear infinite; margin-top: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -25,7 +23,6 @@
 
     <div id="splash">
         <h1>DEVIL DASH</h1>
-        <p style="color: #666; margin-top: 10px;">PRO EDITION</p>
         <div id="loader"></div>
     </div>
 
@@ -33,50 +30,51 @@
         <h1>DEVIL DASH</h1>
         <p style="color: #666;">HIGH SCORE: <span id="hsMenu">0</span></p>
         <button class="btn" onclick="start()">START GAME</button>
-        <a href="https://instagram.com/afzal_07" id="igFooter">FOLLOW @afzal_07</a>
+        <a href="https://instagram.com/afzal_07" id="igFooter">BY @afzal_07</a>
     </div>
 
     <div id="gameOver">
         <h1 style="color:#f00;">WASTED</h1>
-        <p id="finalScore" style="color:#fff; font-size: 20px; margin: 15px 0;"></p>
+        <p id="finalScore" style="color:#fff;"></p>
         <button class="btn" onclick="start()">RETRY</button>
         <button class="btn" style="background:#222;" onclick="location.reload()">HOME</button>
     </div>
 
-    <div id="stats">
-        SCORE: <span id="s">0</span><br>
-        BEST: <span id="hs">0</span>
-    </div>
+    <div id="stats">SCORE: <span id="s">0</span></div>
     <canvas id="gameStage"></canvas>
     <button id="jumpBtn" ontouchstart="jmp(event)" onmousedown="jmp(event)">JUMP</button>
 
+    <audio id="bgTune" src="https://assets.mixkit.co/active_storage/sfx/2126/2126-preview.mp3" loop></audio>
+    <audio id="jumpSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
     <audio id="dieSound" src="https://www.myinstants.com/media/sounds/meme-de-creditos-finales.mp3"></audio>
 
     <script>
         const cvs=document.getElementById('gameStage'), ctx=cvs.getContext('2d'), sl=document.getElementById('splash'), m=document.getElementById('menu'), g=document.getElementById('gameOver'), jb=document.getElementById('jumpBtn'), st=document.getElementById('stats');
+        const bg=document.getElementById('bgTune'), js=document.getElementById('jumpSound'), ds=document.getElementById('dieSound');
         cvs.width=window.innerWidth; cvs.height=320;
         
         let p, obs, sc, spd, run=false, hiScore = localStorage.getItem('devilHS') || 0, smoke = [];
         document.getElementById('hsMenu').innerText = hiScore;
 
-        // 3 സെക്കൻഡ് ലോഡിംഗ് കഴിഞ്ഞ് മെനു കാണിക്കും
         setTimeout(() => { sl.style.display='none'; m.style.display='flex'; }, 3000);
 
         function start(){
             run=true; m.style.display='none'; g.style.display='none'; cvs.style.display='block'; jb.style.display='block'; st.style.display='block';
             p={x:60, y:220, w:45, h:45, dy:0, g:0.8, jump:15, onG:false, angle:0};
             obs=[]; sc=0; spd=8; smoke=[];
-            document.getElementById('hs').innerText = hiScore;
+            bg.volume = 0.5; bg.play(); // Devil Tune starts
             loop();
         }
 
-        function jmp(e){ if(e) e.preventDefault(); if(p.onG){ p.dy=-p.jump; p.onG=false; } }
+        function jmp(e){ 
+            if(e) e.preventDefault(); 
+            if(p.onG){ p.dy=-p.jump; p.onG=false; js.currentTime=0; js.play(); } 
+        }
 
         function loop(){
             if(!run) return;
             ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cvs.width, cvs.height);
             
-            // Smoke Effect (പുതിയ ഫീച്ചർ)
             smoke.push({x: p.x, y: p.y + p.h - 5, life: 1.0});
             for(let i=smoke.length-1; i>=0; i--){
                 smoke[i].x -= spd/2; smoke[i].life -= 0.05;
@@ -84,34 +82,24 @@
                 ctx.fillStyle = '#f00'; ctx.globalAlpha = smoke[i].life * 0.4;
                 ctx.beginPath(); ctx.arc(smoke[i].x, smoke[i].y, 10, 0, Math.PI*2); ctx.fill();
             }
-            ctx.globalAlpha = 1.0; // Reset alpha
+            ctx.globalAlpha = 1.0;
 
-            // Player Physics
             p.dy+=p.g; p.y+=p.dy;
-            if(p.y+p.h>=320){ p.y=320-p.h; p.dy=0; p.onG=true; p.angle=0; } // നിലത്തുനിൽക്കുമ്പോൾ ആംഗിൾ 0 ആകും
-            if(!p.onG) p.angle += 10; // ചാടുമ്പോൾ റൊട്ടേറ്റ് ചെയ്യും
+            if(p.y+p.h>=320){ p.y=320-p.h; p.dy=0; p.onG=true; p.angle=0; }
+            if(!p.onG) p.angle += 10;
 
-            // Player Draw with 360 Rotation (പുതിയ ഫീച്ചർ)
-            ctx.save();
-            ctx.translate(p.x + p.w/2, p.y + p.h/2); // കാർ നടുവിലേക്ക് ക്യാമറ മാറ്റുന്നു
-            ctx.rotate(p.angle * Math.PI / 180); // റൊട്ടേറ്റ് ചെയ്യുന്നു
-            
+            ctx.save(); ctx.translate(p.x + p.w/2, p.y + p.h/2); ctx.rotate(p.angle * Math.PI / 180);
             ctx.fillStyle='#000'; ctx.shadowBlur=15; ctx.shadowColor='#f00';
-            ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); // നടുവിൽ നിന്ന് വരയ്ക്കുന്നു
-            ctx.shadowBlur=0; ctx.fillStyle='#f00'; 
-            ctx.beginPath(); ctx.arc(-10, -8, 6, 0, Math.PI*2); ctx.arc(10, -8, 6, 0, Math.PI*2); ctx.fill(); // Eyes
-            
+            ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+            ctx.shadowBlur=0; ctx.fillStyle='#f00'; ctx.beginPath(); ctx.arc(-10,-8,6,0,Math.PI*2); ctx.arc(10,-8,6,0,Math.PI*2); ctx.fill();
             ctx.restore();
 
-            // Obstacles
             if(Math.random()<0.02 && (obs.length==0 || obs[obs.length-1].x < cvs.width-300)){
                 obs.push({x:cvs.width, y:320, w:35, h:50});
             }
             for(let i=obs.length-1; i>=0; i--){
                 obs[i].x-=spd;
                 ctx.fillStyle='#fff'; ctx.beginPath(); ctx.moveTo(obs[i].x, 320); ctx.lineTo(obs[i].x+17, 320-obs[i].h); ctx.lineTo(obs[i].x+35, 320); ctx.fill();
-                
-                // Collision check (ശരീരം മുഴുവൻ കണക്കാക്കാൻ)
                 if(p.x < obs[i].x+28 && p.x+p.w > obs[i].x+7 && p.y+p.h > 320-obs[i].h) over();
                 if(obs[i].x < -50){ obs.splice(i,1); sc++; spd+=0.05; document.getElementById('s').innerText=sc; }
             }
@@ -119,8 +107,7 @@
         }
 
         function over(){
-            run=false; 
-            document.getElementById('dieSound').play(); 
+            run=false; bg.pause(); bg.currentTime=0; ds.play(); 
             if(sc > hiScore) { hiScore = sc; localStorage.setItem('devilHS', hiScore); }
             g.style.display='flex'; st.style.display='none'; jb.style.display='none';
             document.getElementById('finalScore').innerText = "SCORE: " + sc + " | BEST: " + hiScore;
